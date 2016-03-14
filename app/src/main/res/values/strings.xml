@@ -7,5 +7,14 @@
     <string name="built_it_bigger">Build it bigger</string>
     <string name="xyz_reader">XYZ Reader</string>
     <string name="capstone">CapStone: My Own App</string>
-    <string name="main_activity_title">My App Portfolio</string>
+    <string name="activity_main">My App Portfolio</string>
+    <string name="menu_popular">Most popular</string>
+    <string name="menu_top_rated">Top rated</string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="activity_popular_movies">Popular Movies</string>
+    <string name="synopsis">Synopsis</string>
+    <string name="release_date">Release date</string>
+    <string name="language">Language</string>
+    <string name="vote_average">Rating</string>
+
 </resources>

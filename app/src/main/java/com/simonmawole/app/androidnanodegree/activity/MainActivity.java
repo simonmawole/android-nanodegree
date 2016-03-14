@@ -1,5 +1,6 @@
 package com.simonmawole.app.androidnanodegree.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -19,11 +20,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
     }
 
     public void onClickButton(View view){
         Button button = (Button) view;
+        if(button.getId() == R.id.buttonPopularMovies){
+            startActivity(new Intent(this, PopularMoviesActivity.class));
+        }
         showToast(button.getText().toString());
     }
 

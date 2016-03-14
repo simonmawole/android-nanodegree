@@ -21,6 +21,19 @@
             android:layout_height="wrap_content" />
 
         <Button
+            android:id="@+id/buttonPopularMovies"
+            android:layout_width="@dimen/main_activity_button_width"
+            android:text="@string/popular_movies"
+            android:layout_marginLeft="@dimen/space_size_medium"
+            android:layout_marginRight="@dimen/space_size_medium"
+            android:layout_marginTop="@dimen/space_size_extra_small"
+            android:layout_marginBottom="@dimen/space_size_extra_small"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white"
+            android:onClick="onClickButton"
+            android:layout_height="wrap_content" />
+
+        <Button
             android:id="@+id/buttonSpotifyStreamer"
             android:layout_width="@dimen/main_activity_button_width"
             android:text="@string/spotify_streamer"

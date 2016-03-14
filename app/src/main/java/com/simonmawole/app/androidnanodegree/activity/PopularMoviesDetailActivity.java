@@ -39,7 +39,7 @@ public class PopularMoviesDetailActivity extends AppCompatActivity {
         tvTitle.setText(bundle.getString("title"));
         tvReleaseDate.setText(bundle.getString("release_date"));
         tvLanguage.setText(bundle.getString("language"));
-        tvRating.setText(String.valueOf(bundle.getDouble("rating")));
+        tvRating.setText(String.valueOf(bundle.getDouble("rating"))+" / 10");
         Picasso.with(this)
                 .load(imageUrl+bundle.getString("poster")+"?api_key="+ Developer.MOVIES_API_KEY)
                 .into(ivPoster);

@@ -16,5 +16,7 @@
     <string name="release_date">Release date</string>
     <string name="language">Language</string>
     <string name="vote_average">Rating</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="most_popular">Most Popular</string>
 
 </resources>

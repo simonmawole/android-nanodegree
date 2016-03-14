@@ -9,6 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.simonmawole.app.androidnanodegree.R;
 import com.simonmawole.app.androidnanodegree.adapter.PopularMoviesAdapter;
@@ -39,12 +42,14 @@ public class PopularMoviesActivity extends AppCompatActivity {
     PopularMoviesAdapter adapter;
     RecyclerView.LayoutManager layoutManager;
     ArrayList<MoviesModel> mList;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popular_movies);
 
+        progressBar = (ProgressBar) findViewById(R.id.pbRecycler);
         rvMovies = (RecyclerView) findViewById(R.id.rvMovies);
         layoutManager = new GridLayoutManager(this, 2);
         layoutManager.setAutoMeasureEnabled(true);
@@ -53,10 +58,18 @@ public class PopularMoviesActivity extends AppCompatActivity {
         adapter = new PopularMoviesAdapter(this, new ArrayList<MoviesModel>(0));
         rvMovies.setAdapter(adapter);
 
+        setTitle(R.string.most_popular);
         new FetchMoviesAsyncTask().execute(popularMoviesUrl+ Developer.MOVIES_API_KEY);
     }
 
     private class FetchMoviesAsyncTask extends AsyncTask<String, Integer, String>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+            rvMovies.setVisibility(View.GONE);
+        }
 
         @Override
         protected String doInBackground(String... params) {
@@ -107,10 +120,27 @@ public class PopularMoviesActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
+            progressBar.setVisibility(View.GONE);
+            rvMovies.setVisibility(View.VISIBLE);
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_popular_movies,menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.menu_most_popular){
+            new FetchMoviesAsyncTask().execute(popularMoviesUrl+ Developer.MOVIES_API_KEY);
+            setTitle(R.string.most_popular);
+        } else if(item.getItemId() == R.id.menu_top_rated){
+            new FetchMoviesAsyncTask().execute(topRatedMoviesUrl+ Developer.MOVIES_API_KEY);
+            setTitle(R.string.top_rated);
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

@@ -24,11 +24,16 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import retrofit2.Call;
+import retrofit2.Retrofit;
 
 /**
  * Created by simon on 3/13/16.
@@ -36,21 +41,23 @@ import okhttp3.Response;
 public class PopularMoviesActivity extends AppCompatActivity {
 
     OkHttpClient okHttpClient;
-    private String popularMoviesUrl = "http://api.themoviedb.org/3/movie/popular?api_key=";
-    private String topRatedMoviesUrl = "http://api.themoviedb.org/3/movie/top_rated?api_key=";
-    RecyclerView rvMovies;
     PopularMoviesAdapter adapter;
     RecyclerView.LayoutManager layoutManager;
     ArrayList<MoviesModel> mList;
-    ProgressBar progressBar;
+    String urlPopularMovies = "http://api.themoviedb.org/3/movie/popular?api_key=";
+    String urlTopRatedMovies = "http://api.themoviedb.org/3/movie/top_rated?api_key=";
+
+    //Binding
+    @Bind(R.id.pbRecycler) ProgressBar progressBar;
+    @Bind(R.id.rvMovies) RecyclerView rvMovies;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popular_movies);
 
-        progressBar = (ProgressBar) findViewById(R.id.pbRecycler);
-        rvMovies = (RecyclerView) findViewById(R.id.rvMovies);
+        ButterKnife.bind(this);
+
         layoutManager = new GridLayoutManager(this, 2);
         layoutManager.setAutoMeasureEnabled(true);
         rvMovies.setLayoutManager(layoutManager);
@@ -59,10 +66,10 @@ public class PopularMoviesActivity extends AppCompatActivity {
         rvMovies.setAdapter(adapter);
 
         setTitle(R.string.most_popular);
-        new FetchMoviesAsyncTask().execute(popularMoviesUrl+ Developer.MOVIES_API_KEY);
+        new FetchMoviesAsyncTask().execute(urlPopularMovies+ Developer.MOVIES_API_KEY);
     }
 
-    private class FetchMoviesAsyncTask extends AsyncTask<String, Integer, String>{
+    private class FetchMoviesAsyncTask extends AsyncTask<String, Integer, List<MoviesModel>>{
 
         @Override
         protected void onPreExecute() {
@@ -72,8 +79,21 @@ public class PopularMoviesActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... params) {
-            okHttpClient = new OkHttpClient.Builder()
+        protected List<MoviesModel> doInBackground(String... params) {
+            String url = "http://api.themoviedb.org/";
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(url)
+                    .build();
+            MoviesDb moviesDb = retrofit.create(MoviesDb.class);
+            Call<List<MoviesModel>> data = moviesDb.listMoviesDB("popular", Developer.MOVIES_API_KEY);
+            try {
+                return  data.execute().body();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            /*okHttpClient = new OkHttpClient.Builder()
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30,TimeUnit.SECONDS)
                     .writeTimeout(30, TimeUnit.SECONDS)
@@ -89,15 +109,15 @@ public class PopularMoviesActivity extends AppCompatActivity {
                 return response.body().string();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-            return "";
+            }*/
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(List<MoviesModel> s) {
             super.onPostExecute(s);
 
-            if(s.length() != 0){
+            /*if(s.length() != 0){
                 try {
                     JSONObject jsonObject = new JSONObject(s);
                     JSONArray results = jsonObject.getJSONArray("results");
@@ -120,7 +140,7 @@ public class PopularMoviesActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }
+            }*/
             progressBar.setVisibility(View.GONE);
             rvMovies.setVisibility(View.VISIBLE);
         }
@@ -135,10 +155,10 @@ public class PopularMoviesActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.menu_most_popular){
-            new FetchMoviesAsyncTask().execute(popularMoviesUrl+ Developer.MOVIES_API_KEY);
+            new FetchMoviesAsyncTask().execute(urlPopularMovies+ Developer.MOVIES_API_KEY);
             setTitle(R.string.most_popular);
         } else if(item.getItemId() == R.id.menu_top_rated){
-            new FetchMoviesAsyncTask().execute(topRatedMoviesUrl+ Developer.MOVIES_API_KEY);
+            new FetchMoviesAsyncTask().execute(urlTopRatedMovies+ Developer.MOVIES_API_KEY);
             setTitle(R.string.top_rated);
         }
         return super.onOptionsItemSelected(item);

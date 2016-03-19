@@ -18,14 +18,17 @@ import com.simonmawole.app.androidnanodegree.developer.Developer;
 
 import java.util.ArrayList;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Created by simon on 3/13/16.
  */
 public class PopularMoviesAdapter extends RecyclerView.Adapter<PopularMoviesAdapter.ViewHolder> {
 
-    private String imageUrl = "http://image.tmdb.org/t/p/w500/"; // poster_path?api_key=
     private ArrayList<MoviesModel> mList;
     private Context context;
+    private String urlImage = "http://image.tmdb.org/t/p/w500/";
 
     public PopularMoviesAdapter(Context c, ArrayList<MoviesModel> l){
         this.context = c;
@@ -34,11 +37,11 @@ public class PopularMoviesAdapter extends RecyclerView.Adapter<PopularMoviesAdap
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView ivMoviePoster;
+        @Bind(R.id.ivMoviePoster) ImageView ivMoviePoster;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ivMoviePoster = (ImageView) itemView.findViewById(R.id.ivMoviePoster);
+            ButterKnife.bind(itemView);
         }
 
     }
@@ -58,7 +61,7 @@ public class PopularMoviesAdapter extends RecyclerView.Adapter<PopularMoviesAdap
         final MoviesModel model = mList.get(position);
 
         Picasso.with(context)
-                .load(imageUrl+model.getPoster_path()+"?api_key="+Developer.MOVIES_API_KEY)
+                .load(urlImage+model.getPoster_path()+"?api_key="+Developer.MOVIES_API_KEY)
                 .into(holder.ivMoviePoster);
 
         holder.ivMoviePoster.setOnClickListener(new View.OnClickListener(){

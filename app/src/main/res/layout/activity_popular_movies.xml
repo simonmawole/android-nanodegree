@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_forecast"
+    android:name="com.simonmawole.sunshine.ForecastFragment"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
-
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:visibility="gone"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"
-        android:indeterminateBehavior="cycle"
-        android:layout_height="wrap_content"
-        android:id="@+id/pbRecycler"/>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rvMovies"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-</RelativeLayout>
+    tools:context="com.simonmawole.sunshine.ForecastFragment"
+    tools:layout="@android:layout/list_content" />

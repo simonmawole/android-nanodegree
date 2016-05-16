@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import com.simonmawole.app.androidnanodegree.R;
 import com.simonmawole.app.androidnanodegree.adapter.PopularMoviesAdapter;
 import com.simonmawole.app.androidnanodegree.developer.Developer;
+import com.simonmawole.app.androidnanodegree.fragment.PopularMoviesFragment;
 import com.simonmawole.app.androidnanodegree.model.MoviesModel;
 
 import org.json.JSONArray;
@@ -38,18 +39,11 @@ import retrofit2.Retrofit;
 /**
  * Created by simon on 3/13/16.
  */
-public class PopularMoviesActivity extends AppCompatActivity {
+public class PopularMoviesActivity extends AppCompatActivity implements PopularMoviesFragment.Callback {
 
-    OkHttpClient okHttpClient;
-    PopularMoviesAdapter adapter;
-    RecyclerView.LayoutManager layoutManager;
-    ArrayList<MoviesModel> mList;
-    String urlPopularMovies = "http://api.themoviedb.org/3/movie/popular?api_key=";
-    String urlTopRatedMovies = "http://api.themoviedb.org/3/movie/top_rated?api_key=";
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    //Binding
-    @Bind(R.id.pbRecycler) ProgressBar progressBar;
-    @Bind(R.id.rvMovies) RecyclerView rvMovies;
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,6 +61,11 @@ public class PopularMoviesActivity extends AppCompatActivity {
 
         setTitle(R.string.most_popular);
         new FetchMoviesAsyncTask().execute(urlPopularMovies+ Developer.MOVIES_API_KEY);
+    }
+
+    @Override
+    public void onItemSelected(String date) {
+
     }
 
     private class FetchMoviesAsyncTask extends AsyncTask<String, Integer, List<MoviesModel>>{

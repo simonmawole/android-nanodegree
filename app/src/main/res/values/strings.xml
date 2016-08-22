@@ -20,5 +20,13 @@
     <string name="most_popular">Most Popular</string>
     <string name="action_favorite">Add to favorite</string>
     <string name="action_share">Share the movie</string>
+    <string name="error_player">Fail to open youtube player</string>
+    <string name="menu_favorite">Favorite</string>
+    <string name="trailers">Trailers</string>
+    <string name="reviews">Reviews</string>
+
+    <!-- SyncAdapter -->
+    <string name="sync_account_type">androidnanodegree.app.simonmawole.com</string>
+    <string name="content_authority">com.simonmawole.app.androidnanodegree</string>
 
 </resources>

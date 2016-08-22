@@ -5,7 +5,7 @@
     android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
-    tools:context="com.simonmawole.app.androidnanodegree.activity.PopularMoviesActivity">
+    tools:context=".activity.MovieActivity">
 
     <!--
     This layout is a two-pane layout for the Items master/detail flow.
@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/fragment_movie"
-        android:name="com.simonmawole.sunshine.ForecastFragment"
+        android:name="com.simonmawole.app.androidnanodegree.fragment.MovieFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"

@@ -4,33 +4,60 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.simonmawole.app.androidnanodegree.R;
+import com.simonmawole.app.androidnanodegree.utility.Helpers;
+
+import butterknife.BindString;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by simon on 3/13/16.
  */
 public class MainActivity extends AppCompatActivity {
 
+    //Bind strings
+    @Nullable @BindString(R.string.built_it_bigger) String builtItBigger;
+    @Nullable @BindString(R.string.library_app) String libraryApp;
+    @Nullable @BindString(R.string.xyz_reader) String xyzReader;
+    @Nullable @BindString(R.string.spotify_streamer) String spotifyStreamer;
+    @Nullable @BindString(R.string.scores_app) String scoreApp;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Init ButterKnife
+        ButterKnife.bind(this);
 
     }
 
-    public void onClickButton(View view){
-        Button button = (Button) view;
-        if(button.getId() == R.id.buttonPopularMovies){
-            startActivity(new Intent(this, PopularMoviesActivity.class));
+    @OnClick({R.id.buttonPopularMovies,R.id.buttonBuildItBigger,R.id.buttonLibrary,
+    R.id.buttonScores,R.id.buttonSpotifyStreamer,R.id.buttonXYZReader})
+    public void onButtonClick(Button button){
+        switch (button.getId()){
+            case R.id.buttonPopularMovies:
+                startActivity(new Intent(this, MovieActivity.class));
+                break;
+            case R.id.buttonBuildItBigger:
+                Helpers.showToast(this, builtItBigger);
+                break;
+            case R.id.buttonLibrary:
+                Helpers.showToast(this,libraryApp);
+                break;
+            case R.id.buttonScores:
+                Helpers.showToast(this,scoreApp);
+                break;
+            case R.id.buttonSpotifyStreamer:
+                Helpers.showToast(this,spotifyStreamer);
+                break;
+            case R.id.buttonXYZReader:
+                Helpers.showToast(this,xyzReader);
+                break;
         }
-        showToast(button.getText().toString());
     }
 
-    public void showToast(String message){
-        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
-    }
 }

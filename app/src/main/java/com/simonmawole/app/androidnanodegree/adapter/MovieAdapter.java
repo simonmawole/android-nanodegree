@@ -7,41 +7,42 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.simonmawole.app.androidnanodegree.R;
-import com.simonmawole.app.androidnanodegree.activity.PopularMoviesDetailActivity;
-import com.simonmawole.app.androidnanodegree.model.MoviesModel;
-import com.squareup.picasso.Picasso;
+import com.simonmawole.app.androidnanodegree.activity.MovieDetailActivity;
+import com.simonmawole.app.androidnanodegree.model.MovieModel;
 import com.simonmawole.app.androidnanodegree.developer.Developer;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
  * Created by simon on 3/13/16.
  */
-public class PopularMoviesAdapter extends RecyclerView.Adapter<PopularMoviesAdapter.ViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
-    private ArrayList<MoviesModel> mList;
+    private List<MovieModel.MovieResult> mList;
     private Context context;
     private String urlImage = "http://image.tmdb.org/t/p/w500/";
 
-    public PopularMoviesAdapter(Context c, ArrayList<MoviesModel> l){
+    public MovieAdapter(Context c, List<MovieModel.MovieResult> l){
         this.context = c;
         this.mList = l;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        @Bind(R.id.ivMoviePoster) ImageView ivMoviePoster;
+        public final ImageView ivMoviePoster;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(itemView);
+
+            ivMoviePoster = (ImageView) itemView.findViewById(R.id.ivMoviePoster);
         }
 
     }
@@ -50,7 +51,7 @@ public class PopularMoviesAdapter extends RecyclerView.Adapter<PopularMoviesAdap
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
-        View view = inflater.inflate(R.layout.item_movies_poster, parent, false);
+        View view = inflater.inflate(R.layout.item_movie_poster, parent, false);
 
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
@@ -58,33 +59,35 @@ public class PopularMoviesAdapter extends RecyclerView.Adapter<PopularMoviesAdap
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        final MoviesModel model = mList.get(position);
+        final MovieModel.MovieResult model = mList.get(position);
 
-        Picasso.with(context)
-                .load(urlImage+model.getPoster_path()+"?api_key="+Developer.MOVIES_API_KEY)
+        Glide.with(context)
+                .load(urlImage+model.poster_path+"?api_key="+Developer.MOVIES_API_KEY)
                 .into(holder.ivMoviePoster);
 
         holder.ivMoviePoster.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 Bundle bundle = new Bundle();
-                bundle.putString("title", model.getOriginal_title());
-                bundle.putString("poster", model.getPoster_path());
-                bundle.putString("overview", model.getOverview());
-                bundle.putDouble("rating", model.getVote_average());
-                bundle.putString("language", model.getOriginal_language());
-                bundle.putString("release_date", model.getRelease_date());
+                bundle.putString("movie_id", String.valueOf(model.id));
+                bundle.putString("title", model.original_title);
+                bundle.putString("poster", model.poster_path);
+                bundle.putString("overview", model.overview);
+                bundle.putDouble("rating", model.vote_average);
+                bundle.putString("language", model.original_language);
+                bundle.putString("release_date", model.release_date);
                 context.startActivity(
-                        new Intent(context, PopularMoviesDetailActivity.class).putExtras(bundle));
+                        new Intent(context, MovieDetailActivity.class).putExtras(bundle));
             }
         });
-
 
     }
 
     @Override
     public int getItemCount() {
-        return mList.size();
+        if(mList != null) return mList.size();
+
+        return 0;
     }
 
 }

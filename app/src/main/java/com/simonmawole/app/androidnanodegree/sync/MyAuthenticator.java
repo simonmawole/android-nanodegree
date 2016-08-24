@@ -8,9 +8,9 @@ import android.content.Context;
 import android.os.Bundle;
 
 
-public class Authenticator extends AbstractAccountAuthenticator {
+public class MyAuthenticator extends AbstractAccountAuthenticator {
 
-    public Authenticator(Context context) {
+    public MyAuthenticator(Context context) {
         super(context);
     }
 

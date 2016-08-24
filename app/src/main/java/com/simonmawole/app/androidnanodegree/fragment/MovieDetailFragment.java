@@ -2,9 +2,15 @@ package com.simonmawole.app.androidnanodegree.fragment;
 
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
@@ -27,6 +33,7 @@ import com.simonmawole.app.androidnanodegree.R;
 import com.simonmawole.app.androidnanodegree.adapter.MovieAdapter;
 import com.simonmawole.app.androidnanodegree.adapter.MovieReviewAdapter;
 import com.simonmawole.app.androidnanodegree.adapter.MovieTrailerAdapter;
+import com.simonmawole.app.androidnanodegree.data.MovieContentProvider;
 import com.simonmawole.app.androidnanodegree.developer.Developer;
 import com.simonmawole.app.androidnanodegree.end_point.MovieReviewService;
 import com.simonmawole.app.androidnanodegree.end_point.MovieService;
@@ -54,7 +61,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * Created by simon on 5/16/16.
  */
-public class MovieDetailFragment extends Fragment implements MovieTrailerAdapter.MovieTrailerListener{
+public class MovieDetailFragment extends Fragment implements
+        MovieTrailerAdapter.MovieTrailerListener, LoaderManager.LoaderCallbacks<Cursor>{
 
     private String urlImage = "http://image.tmdb.org/t/p/w500/";
     private Bundle bundle;
@@ -86,6 +94,9 @@ public class MovieDetailFragment extends Fragment implements MovieTrailerAdapter
     private List<MovieTrailerModel.TrailerResult> mTrailerList;
     private List<MovieReviewModel.ReviewResult> mReviewList;
 
+    private String mDataToShare;
+    private ShareActionProvider mShareActionProvider;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +115,7 @@ public class MovieDetailFragment extends Fragment implements MovieTrailerAdapter
         bundle = getActivity().getIntent().getExtras();
 
         if(bundle != null) {
-            tvSynopsis.setText(bundle.getString("overview"));
+           /* tvSynopsis.setText(bundle.getString("overview"));
             tvTitle.setText(bundle.getString("title"));
             tvReleaseDate.setText(Helpers.getDateUserFormat(bundle.getString("release_date")));
             tvLanguage.setText(bundle.getString("language"));
@@ -115,7 +126,7 @@ public class MovieDetailFragment extends Fragment implements MovieTrailerAdapter
 
             Glide.with(getActivity())
                     .load(urlImage + bundle.getString("poster") + "?api_key=" + Developer.MOVIES_API_KEY)
-                    .into(ivPoster);
+                    .into(ivPoster);*/
 
             setTrailer(bundle.getString("movie_id"));
             setReview(bundle.getString("movie_id"));
@@ -177,23 +188,50 @@ public class MovieDetailFragment extends Fragment implements MovieTrailerAdapter
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.menu_movie_detail_fragment, menu);
+
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.menu_action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
+        if (mDataToShare != null) {
+            mShareActionProvider.setShareIntent(createShareIntent("", ""));
+        }
+    }
+
+    private Intent createShareIntent(String title, String url) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, title +"\n"+ url);
+        return shareIntent;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.menu_action_favorite:
-                /*TODO save or unsave movies as favorite*/
+                item.setIcon(R.mipmap.ic_action_important);
+                Helpers.showToast(getActivity(), "Favorite");
                 break;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(0, null, this);
         super.onActivityCreated(savedInstanceState);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getLoaderManager().restartLoader(0, null, this);
     }
 
     @Override
@@ -240,6 +278,14 @@ public class MovieDetailFragment extends Fragment implements MovieTrailerAdapter
                         trailerAdapter = new MovieTrailerAdapter(getActivity(),
                                 mTrailerList, MovieDetailFragment.this);
                         rvMovieTrailer.swapAdapter(trailerAdapter, false);
+
+                        // If onCreateOptionsMenu has already happened,
+                        // we need to update the share intent now.
+                        if (mShareActionProvider != null) {
+                            mShareActionProvider.setShareIntent(createShareIntent(
+                                    mTrailerList.get(0).name,
+                                    "https://www.youtube.com/watch?v="+mTrailerList.get(0).key));
+                        }
 
                     } catch (Exception e){
                         e.printStackTrace();
@@ -307,4 +353,41 @@ public class MovieDetailFragment extends Fragment implements MovieTrailerAdapter
             Helpers.showToast(getActivity(), "No trailer");
         }
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        Uri mUri = MovieContentProvider.Movie.withMovieId(bundle.getString("movie_id"));
+
+        return new CursorLoader(getActivity(),mUri,null,"movie_id="+bundle.getString("movie_id"),
+                null,null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            if (data != null && data.moveToFirst()) {
+                tvSynopsis.setText(data.getString(data.getColumnIndex("overview")));
+                tvTitle.setText(data.getString(data.getColumnIndex("original_title")));
+                tvReleaseDate.setText(Helpers.getDateUserFormat(data.getString(
+                        data.getColumnIndex("release_date"))));
+                tvLanguage.setText(data.getString(data.getColumnIndex("original_language")));
+
+                DecimalFormat df = new DecimalFormat("#.#");
+                df.setRoundingMode(RoundingMode.CEILING);
+                tvRating.setText(df.format(Double.parseDouble(data.getString(
+                        data.getColumnIndex("vote_average")))) + " / 10");
+
+                Glide.with(getActivity())
+                        .load(urlImage + data.getString(data.getColumnIndex("poster_path"))
+                                + "?api_key=" + Developer.MOVIES_API_KEY)
+                        .into(ivPoster);
+
+            }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
 }

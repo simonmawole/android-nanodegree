@@ -1,13 +1,13 @@
 package com.simonmawole.app.androidnanodegree.fragment;
 
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,7 +16,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -24,22 +23,18 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.simonmawole.app.androidnanodegree.R;
 import com.simonmawole.app.androidnanodegree.adapter.MovieAdapter;
-import com.simonmawole.app.androidnanodegree.data.MovieColumns;
 import com.simonmawole.app.androidnanodegree.data.MovieContentProvider;
 import com.simonmawole.app.androidnanodegree.developer.Developer;
 import com.simonmawole.app.androidnanodegree.end_point.MovieService;
 import com.simonmawole.app.androidnanodegree.model.MovieModel;
+import com.simonmawole.app.androidnanodegree.sync.MySyncAdapter;
 import com.simonmawole.app.androidnanodegree.utility.Helpers;
-import com.simonmawole.app.androidnanodegree.utility.NetworkInterceptor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -58,30 +53,19 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private MovieService movieService;
     private Call<MovieModel> call;
 
+    /*
+    * Category selected
+    * 0 is popular
+    * 1 is top_rated
+    * 2 is favorite
+    * */
+    private static int categorySelected = -1;
+
     //Binding
     @BindView(R.id.rvMovies) RecyclerView rvMovies;
  //   @BindView(R.id.srlMovies) SwipeRefreshLayout srlMovies;
     @BindView(R.id.pbLoadingProgress) ProgressBar progressBar;
     @BindView(R.id.tvMessage) TextView tvMessage;
-
-    private int mPosition = ListView.INVALID_POSITION;
-    private boolean mUseTodayLayout;
-
-    private static final String SELECTED_KEY = "selected_position";
-
-    private static final int FORECAST_LOADER = 0;
-
-    /**
-     * A callback interface that all activities containing this fragment must
-     * implement. This mechanism allows activities to be notified of item
-     * selections.
-     */
-    public interface Callback {
-        /**
-         * DetailFragmentCallback for when an item has been selected.
-         */
-        public void onItemSelected(String id);
-    }
 
     public MovieFragment() {
     }
@@ -103,11 +87,12 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         int itemId = item.getItemId();
         switch (itemId){
             case R.id.menu_most_popular:
-                fetchMovies("popular");
+                //fetchMovies("popular");
+                fetchMoviesFromDatabse("popular");
                 getActivity().setTitle(R.string.most_popular);
                 break;
             case R.id.menu_top_rated:
-                fetchMovies("top_rated");
+                //fetchMovies("top_rated");
                 getActivity().setTitle(R.string.top_rated);
                 break;
             case R.id.menu_favorite:
@@ -130,101 +115,20 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         layoutManager.setAutoMeasureEnabled(true);
         rvMovies.setLayoutManager(layoutManager);
 
-        adapter = new MovieAdapter(getActivity(), mList);
-        rvMovies.setAdapter(adapter);
+        //adapter = new MovieAdapter(getActivity(), null);
+        //rvMovies.setAdapter(adapter);
 
-        fetchMovies("popular");
+        //fetchMoviesFromDatabse("popular");
+
+        MySyncAdapter.syncImmediately(getActivity());
 
         getActivity().setTitle(R.string.most_popular);
-
-        // If there's instance state, mine it for useful information.
-        // The end-goal here is that the user never knows that turning their device sideways
-        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
-        // or magically appeared to take advantage of room, but data or place in the app was never
-        // actually *lost*.
-        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
-            // The listview probably hasn't even been populated yet.  Actually perform the
-            // swapout in onLoadFinished.
-            mPosition = savedInstanceState.getInt(SELECTED_KEY);
-        }
 
         return rootView;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
-        super.onActivityCreated(savedInstanceState);
-    }
 
-    private void updateWeather() {
-        //SyncAdapter.syncImmediately(getActivity());
-    }
-
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        /*if (mLocation != null && !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
-            getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
-        }*/
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        // When tablets rotate, the currently selected list item needs to be saved.
-        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
-        // so check for that before storing.
-        if (mPosition != ListView.INVALID_POSITION) {
-            outState.putInt(SELECTED_KEY, mPosition);
-        }
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        /*mLocation = Utility.getPreferredLocation(getActivity());
-        Uri weatherForLocationUri = WeatherEntry.buildWeatherLocationWithStartDate(
-                mLocation, startDate);
-
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
-        return new CursorLoader(
-                getActivity(),
-                weatherForLocationUri,
-                FORECAST_COLUMNS,
-                null,
-                null,
-                null
-        );*/
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        /*mForecastAdapter.swapCursor(data);
-        if (mPosition != ListView.INVALID_POSITION) {
-            // If we don't need to restart the loader, and there's a desired position to restore
-            // to, do so now.
-            mListView.smoothScrollToPosition(mPosition);
-        }*/
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-       // mForecastAdapter.swapCursor(null);
-    }
-
-    public void setUseTodayLayout(boolean useTodayLayout) {
-        /*mUseTodayLayout = useTodayLayout;
-        if (mForecastAdapter != null) {
-            mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
-        }*/
-    }
-
-    public void fetchMovies(final String category){
+    public void fetchMoviesFromDatabse(final String category){
         if(Helpers.isConnected(getActivity())){
             //Show the progress bar
             progressBar.setVisibility(View.VISIBLE);
@@ -248,8 +152,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                     try {
                         mList = response.body().results;
 
-                        adapter = new MovieAdapter(getActivity(), mList);
-                        rvMovies.swapAdapter(adapter, false);
+                        //adapter = new MovieAdapter(getActivity(), mList);
+                        //rvMovies.swapAdapter(adapter, false);
 
                         //Show recycler
                         progressBar.setVisibility(View.GONE);
@@ -302,5 +206,60 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(0, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getLoaderManager().restartLoader(0, null, this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        progressBar.setVisibility(View.VISIBLE);
+        rvMovies.setVisibility(View.GONE);
+        tvMessage.setVisibility(View.GONE);
+
+        Uri uriMovies;
+        switch(categorySelected){
+            case 0:
+                //uriMovies = MovieContentProvider.Movie.popularMovie(1);
+                break;
+            case 1:
+                //uriMovies = MovieContentProvider.Movie.topRatedMovie(1);
+                break;
+            case 2:
+                //uriMovies = MovieContentProvider.Movie.favoriteMovie(1);
+                break;
+            default:
+                //uriMovies = MovieContentProvider.Movie.CONTENT_URI;
+        }
+
+        return new CursorLoader(getActivity(),
+                MovieContentProvider.Movie.CONTENT_URI,
+                null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Helpers.printLog("CURSOR", String.valueOf(data.getCount()));
+        adapter = new MovieAdapter(getActivity(), data);
+        rvMovies.swapAdapter(adapter, false);
+
+        progressBar.setVisibility(View.GONE);
+        rvMovies.setVisibility(View.VISIBLE);
+        tvMessage.setVisibility(View.GONE);
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter = new MovieAdapter(getActivity(), null);
+        rvMovies.swapAdapter(adapter, false);
+    }
 }
 

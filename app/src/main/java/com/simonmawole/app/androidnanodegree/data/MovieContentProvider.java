@@ -96,15 +96,15 @@ public final class MovieContentProvider {
         ) public static final Uri CONTENT_URI = buildUri(Path.MOVIE);
 
         /**
-         * Content Uri for return single movie
+         * Content Uri for return single movie using id
          * */
         @InexactContentUri(
                 name = "MOVIE",
-                path = Path.MOVIE + "/#",
+                path = Path.MOVIE + "/*",
                 type = "vnd.android.cursor.item/movie",
                 whereColumn = MovieColumns.MOVIE_ID,
                 pathSegment = 1
-        ) public static Uri withId(long id) {
+        ) public static Uri withMovieId(String id) {
             return buildUri(Path.MOVIE, String.valueOf(id));
         }
 
@@ -117,7 +117,7 @@ public final class MovieContentProvider {
                 type = "vnd.android.cursor.dir/movie",
                 whereColumn = MovieColumns.POPULAR,
                 pathSegment = 2
-        ) public static Uri popularMovie(long v){
+        ) public static Uri popularMovie(String v){
             return buildUri(Path.POPULAR, String.valueOf(v));
         }
 
@@ -130,7 +130,7 @@ public final class MovieContentProvider {
                 type = "vnd.android.cursor.dir/movie",
                 whereColumn = MovieColumns.TOP_RATED,
                 pathSegment = 2
-        ) public static Uri topRatedMovie(long v){
+        ) public static Uri topRatedMovie(String v){
             return buildUri(Path.TOP_RATED, String.valueOf(v));
         }
 
@@ -143,8 +143,8 @@ public final class MovieContentProvider {
                 type = "vnd.android.cursor.dir/movie",
                 whereColumn = MovieColumns.FAVORITE,
                 pathSegment = 2
-        ) public static Uri favoriteMovie(long v){
-            return buildUri(Path.FAVORITE, String.valueOf(v));
+        ) public static Uri favoriteMovie(String v){
+            return buildUri(Path.MOVIE, Path.FAVORITE, String.valueOf(v));
         }
 
         /**
@@ -156,8 +156,8 @@ public final class MovieContentProvider {
                 type = "vnd.android.cursor.dir/movie",
                 whereColumn = MovieTrailerColumns.MOVIE_ID,
                 pathSegment = 2
-        ) public static Uri movieTrailer(long id){
-            return buildUri(Path.TRAILER, String.valueOf(id));
+        ) public static Uri movieTrailer(String id){
+            return buildUri(Path.MOVIE, Path.TRAILER, String.valueOf(id));
         }
 
         /**
@@ -169,8 +169,8 @@ public final class MovieContentProvider {
                 type = "vnd.android.cursor.dir/movie",
                 whereColumn = MovieReviewColumns.MOVIE_ID,
                 pathSegment = 2
-        ) public static Uri movieReview(long id){
-            return buildUri(Path.REVIEW, String.valueOf(id));
+        ) public static Uri movieReview(String id){
+            return buildUri(Path.MOVIE, Path.REVIEW, String.valueOf(id));
         }
 
         /**
@@ -178,14 +178,14 @@ public final class MovieContentProvider {
          * */
         @NotifyInsert(paths = Path.MOVIE)
         public static Uri[] onInsert(ContentValues values) {
-            final long id = values.getAsLong(MovieColumns.MOVIE_ID);
+            final String movieId = values.getAsString(MovieColumns.MOVIE_ID);
             return new Uri[]{
-                    Movie.withId(id),
-                    movieReview(id),
-                    movieTrailer(id),
-                    favoriteMovie(id),
-                    topRatedMovie(id),
-                    popularMovie(id)
+                    Movie.withMovieId(movieId),
+                    movieReview(movieId),
+                    movieTrailer(movieId),
+                    favoriteMovie(movieId),
+                    topRatedMovie(movieId),
+                    popularMovie(movieId)
             };
         }
 
@@ -203,7 +203,7 @@ public final class MovieContentProvider {
         /**
          * Update data
          * */
-        @NotifyUpdate(paths = Path.MOVIE + "/#")
+        @NotifyUpdate(paths = Path.MOVIE + "/*")
         public static Uri[] onUpdate(Context context, Uri uri, String where,
                                      String[] whereArgs) {
             final long movieId = Long.valueOf(uri.getPathSegments().get(1));
@@ -211,12 +211,12 @@ public final class MovieContentProvider {
                     MovieColumns.MOVIE_ID,
             }, null, null, null);
             c.moveToFirst();
-            final long movieId2 = c.getLong(
+            final String movieId2 = c.getString(
                     c.getColumnIndex(MovieColumns.MOVIE_ID));
             c.close();
 
             return new Uri[]{
-                    withId(movieId),
+                    withMovieId(movieId2),
                     movieReview(movieId2),
                     movieTrailer(movieId2),
                     favoriteMovie(movieId2),
@@ -228,16 +228,16 @@ public final class MovieContentProvider {
         /**
          * Delete data
          * */
-        @NotifyDelete(paths = Path.MOVIE + "/#")
+        @NotifyDelete(paths = Path.MOVIE + "/*")
         public static Uri[] onDelete(Context context, Uri uri){
             final long movieId = Long.valueOf(uri.getPathSegments().get(1));
             Cursor c = context.getContentResolver().query(uri, null,null,null,null);
             c.moveToFirst();
-            final long movieId2 = c.getLong(c.getColumnIndex(MovieColumns.MOVIE_ID));
+            final String movieId2 = c.getString(c.getColumnIndex(MovieColumns.MOVIE_ID));
             c.close();
 
             return new Uri[]{
-                    withId(movieId),
+                    withMovieId(movieId2),
                     movieReview(movieId2),
                     movieTrailer(movieId2),
                     favoriteMovie(movieId2),

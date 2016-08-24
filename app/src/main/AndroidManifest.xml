@@ -45,8 +45,8 @@
             android:exported="false"
             android:syncable="true"/>
 
-        <!-- SyncAdapter's dummy authentication service -->
-        <service android:name="com.simonmawole.app.androidnanodegree.sync.AuthenticatorService">
+        <!-- MySyncAdapter's authentication service -->
+        <service android:name=".sync.MyAuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -55,9 +55,9 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-        <!-- The SyncAdapter service -->
+        <!-- The MySyncAdapter service -->
         <service
-            android:name="com.simonmawole.app.androidnanodegree.sync.SyncService"
+            android:name=".sync.MySyncService"
             android:exported="true"
             >
             <intent-filter>

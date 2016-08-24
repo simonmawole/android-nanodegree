@@ -14,7 +14,7 @@ public interface MovieColumns {
 
     @DataType(DataType.Type.INTEGER) @PrimaryKey @AutoIncrement String _ID = "_id";
 
-    @DataType(DataType.Type.TEXT) @NotNull @Unique String MOVIE_ID = "movie_id";
+    @DataType(DataType.Type.TEXT) @NotNull String MOVIE_ID = "movie_id";
 
     @DataType(DataType.Type.TEXT) @NotNull String ORIGINAL_LANGUAGE = "original_language";
 

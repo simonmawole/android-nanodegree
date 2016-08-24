@@ -41,6 +41,6 @@ public final class MovieDatabase {
     public static void onConfigure(SQLiteDatabase db){
     }
 
-    @ExecOnCreate
-    public static final String EXEC_ON_CREATE = "SELECT * FROM " + MOVIE;
+    /*@ExecOnCreate
+    public static final String EXEC_ON_CREATE = "SELECT * FROM " + MOVIE;*/
 }

@@ -14,7 +14,7 @@ public interface MovieTrailerColumns {
 
     @DataType(DataType.Type.INTEGER) @PrimaryKey @AutoIncrement String _ID = "_id";
 
-    @DataType(DataType.Type.TEXT) @NotNull @Unique String TRAILER_ID = "trailer_id";
+    @DataType(DataType.Type.TEXT) @NotNull String TRAILER_ID = "trailer_id";
 
     @DataType(DataType.Type.TEXT) @NotNull String KEY = "key";
 

@@ -7,77 +7,51 @@ import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.view.View;
 
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.simonmawole.app.androidnanodegree.R;
 import com.simonmawole.app.androidnanodegree.activity.MovieActivity;
-import com.simonmawole.app.androidnanodegree.adapter.MovieAdapter;
 import com.simonmawole.app.androidnanodegree.data.MovieContentProvider;
 import com.simonmawole.app.androidnanodegree.developer.Developer;
 import com.simonmawole.app.androidnanodegree.end_point.MovieService;
 import com.simonmawole.app.androidnanodegree.model.MovieModel;
 import com.simonmawole.app.androidnanodegree.utility.Helpers;
-import com.simonmawole.app.androidnanodegree.utility.NetworkInterceptor;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Vector;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class SyncAdapter extends AbstractThreadedSyncAdapter {
+public class MySyncAdapter extends AbstractThreadedSyncAdapter {
     // Interval at which to sync with the weather, in milliseconds.
     // 60 seconds (1 minute) * 180 = 3 hours
-    public static final int SYNC_INTERVAL = 60 * 180;
+    public static final int SYNC_INTERVAL = 60;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
-    private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
     private static final int NOTIFICATION_ID = 1992;
 
     private Gson gson;
     private Retrofit retrofit;
     private MovieService movieService;
     private Call<MovieModel> call;
-    private Context mContext;
     private List<MovieModel.MovieResult> mList;
-    private boolean fetchSuccess = false;
+    private boolean fetchTopRated = true;
 
-    public SyncAdapter(Context context, boolean autoInitialize) {
+    public MySyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-
-        this.mContext = context;
 
         Log.e("MY LOGS","syncadapter");
     }
@@ -89,16 +63,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         //fetch popular movies
         fetchMovies("popular");
 
-        //fetch top_rated movies
-        fetchMovies("top_rated");
-
         //display notification
         displayNotification();
 
     }
 
     public void fetchMovies(final String category){
-        if(Helpers.isConnected(mContext)){
+        if(Helpers.isConnected(getContext())){
             gson = new GsonBuilder().create();
 
             retrofit = new Retrofit.Builder()
@@ -133,12 +104,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             } else {
                                 values.put("top_rated", 1);
                             }
-                            mContext.getContentResolver().insert(
+                            getContext().getContentResolver().insert(
                                     MovieContentProvider.Movie.CONTENT_URI, values);
                         }
 
                         Helpers.printLog("Fetch "+category+" Movie Complete",
                                 mList.size() + "Inserted");
+
+                        if(fetchTopRated) {
+                            fetchMovies("top_rated");
+                            fetchTopRated = false;
+                        }
 
                     } catch (Exception e){
                         e.printStackTrace();
@@ -239,7 +215,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     /**
-     * Helper method to get the fake account to be used with SyncAdapter, or make a new one
+     * Helper method to get the fake account to be used with MySyncAdapter, or make a new one
      * if the fake account doesn't exist yet.  If we make a new account, we call the
      * onAccountCreated method so we can initialize things.
      *
@@ -285,7 +261,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         /*
          * Since we've created an account
          */
-        SyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+        MySyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
 
         /*
          * Without calling setSyncAutomatically, our periodic sync will not be enabled.

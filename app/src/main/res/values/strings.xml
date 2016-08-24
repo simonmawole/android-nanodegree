@@ -25,7 +25,7 @@
     <string name="trailers">Trailers</string>
     <string name="reviews">Reviews</string>
 
-    <!-- SyncAdapter -->
+    <!-- MySyncAdapter -->
     <string name="sync_account_type">androidnanodegree.app.simonmawole.com</string>
     <string name="content_authority">com.simonmawole.app.androidnanodegree</string>
 

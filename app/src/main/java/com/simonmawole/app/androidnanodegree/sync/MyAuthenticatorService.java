@@ -3,19 +3,18 @@ package com.simonmawole.app.androidnanodegree.sync;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 /**
  * The service which allows the sync adapter framework to access the authenticator.
  */
-public class AuthenticatorService extends Service {
+public class MyAuthenticatorService extends Service {
     // Instance field that stores the authenticator object
-    private Authenticator mAuthenticator;
+    private MyAuthenticator mMyAuthenticator;
 
     @Override
     public void onCreate() {
         // Create a new authenticator object
-        mAuthenticator = new Authenticator(this);
+        mMyAuthenticator = new MyAuthenticator(this);
     }
 
     /*
@@ -24,6 +23,6 @@ public class AuthenticatorService extends Service {
      */
     @Override
     public IBinder onBind(Intent intent) {
-        return mAuthenticator.getIBinder();
+        return mMyAuthenticator.getIBinder();
     }
 }

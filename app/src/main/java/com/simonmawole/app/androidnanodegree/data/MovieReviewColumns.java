@@ -14,7 +14,7 @@ public interface MovieReviewColumns {
 
     @DataType(DataType.Type.INTEGER) @PrimaryKey @AutoIncrement String _ID = "_id";
 
-    @DataType(DataType.Type.TEXT) @NotNull @Unique String REVIEW_ID = "review_id";
+    @DataType(DataType.Type.TEXT) @NotNull String REVIEW_ID = "review_id";
 
     @DataType(DataType.Type.TEXT) @NotNull String AUTHOR = "author";
 

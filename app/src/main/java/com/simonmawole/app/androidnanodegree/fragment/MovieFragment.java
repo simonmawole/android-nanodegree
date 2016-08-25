@@ -138,38 +138,31 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         rvMovies.setVisibility(View.GONE);
         tvMessage.setVisibility(View.GONE);
 
-        Uri uriMovies = null;
+        return new CursorLoader(getActivity(),
+                getUrlFromCategorySelected(),
+                null, null, null, null);
+    }
+
+    public Uri getUrlFromCategorySelected(){
+        Uri mUri = null;
         switch(categorySelected){
             case 0:
-                try {
-                    uriMovies = MovieContentProvider.Movie.popularMovie("1");
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+                mUri = MovieContentProvider.Movie.popularMovie("1");
                 break;
             case 1:
-                try {
-                    uriMovies = MovieContentProvider.Movie.topRatedMovie("1");
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+                mUri = MovieContentProvider.Movie.topRatedMovie("1");
                 break;
             case 2:
-                try {
-                    uriMovies = MovieContentProvider.Movie.favoriteMovie("1");
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+                mUri = MovieContentProvider.Movie.favoriteMovie("1");
                 break;
         }
 
-        return new CursorLoader(getActivity(),
-                uriMovies,
-                null, null, null, null);
+        return mUri;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
         if(data != null && data.getCount() != 0) {
             adapter = new MovieAdapter(getActivity(), data);
             rvMovies.swapAdapter(adapter, false);
@@ -178,12 +171,15 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             rvMovies.setVisibility(View.VISIBLE);
             tvMessage.setVisibility(View.GONE);
         } else {
+            MySyncAdapter.syncImmediately(getActivity());
+
             progressBar.setVisibility(View.GONE);
             rvMovies.setVisibility(View.GONE);
 
             tvMessage.setText("There is no movie");
             tvMessage.setVisibility(View.VISIBLE);
         }
+
 
     }
 

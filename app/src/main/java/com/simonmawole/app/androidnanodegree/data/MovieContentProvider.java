@@ -153,6 +153,7 @@ public final class MovieContentProvider {
         @NotifyInsert(paths = Path.MOVIE)
         public static Uri[] onInsert(ContentValues values) {
             final String movieId = values.getAsString(MovieColumns.MOVIE_ID);
+
             return new Uri[]{
                     Movie.withMovieId(movieId),
                     favoriteMovie(movieId),
@@ -178,10 +179,9 @@ public final class MovieContentProvider {
         @NotifyUpdate(paths = Path.MOVIE + "/*")
         public static Uri[] onUpdate(Context context, Uri uri, String where,
                                      String[] whereArgs) {
-            final long movieId = Long.valueOf(uri.getPathSegments().get(1));
             Cursor c = context.getContentResolver().query(uri, new String[] {
                     MovieColumns.MOVIE_ID,
-            }, null, null, null);
+            }, where, whereArgs, null);
             c.moveToFirst();
             final String movieId2 = c.getString(
                     c.getColumnIndex(MovieColumns.MOVIE_ID));

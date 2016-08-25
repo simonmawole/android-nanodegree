@@ -1,6 +1,7 @@
 package com.simonmawole.app.androidnanodegree.fragment;
 
 import android.app.ActionBar;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -97,6 +98,9 @@ public class MovieDetailFragment extends Fragment implements
 
     private String mDataToShare;
     private ShareActionProvider mShareActionProvider;
+    private Menu mMenu;
+    private static boolean isFavorite = false;
+    private static String mMovieId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -117,8 +121,10 @@ public class MovieDetailFragment extends Fragment implements
 
         if(bundle != null) {
 
-            setTrailer(bundle.getString("movie_id"));
-            setReview(bundle.getString("movie_id"));
+            mMovieId = bundle.getString("movie_id");
+
+            setTrailer(mMovieId);
+            setReview(mMovieId);
 
         }
 
@@ -181,6 +187,18 @@ public class MovieDetailFragment extends Fragment implements
         // Retrieve the share menu item
         MenuItem menuItem = menu.findItem(R.id.menu_action_share);
 
+        //Set menu as global
+        mMenu = menu;
+
+        MenuItem menuFav = menu.findItem(R.id.menu_action_favorite);
+
+        if(isFavorite){
+            menuFav.setIcon(R.mipmap.ic_action_important);
+        } else {
+            menuFav.setIcon(R.mipmap.ic_action_not_important);
+        }
+
+
         // Get the provider and hold onto it to set/change the share intent.
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
@@ -202,8 +220,24 @@ public class MovieDetailFragment extends Fragment implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.menu_action_favorite:
-                item.setIcon(R.mipmap.ic_action_important);
-                Helpers.showToast(getActivity(), "Favorite");
+                ContentValues values = new ContentValues();
+                if(isFavorite) {
+                    values.put("favorite", 0);
+                    getActivity().getContentResolver()
+                            .update(MovieContentProvider.Movie.CONTENT_URI,
+                                    values,"movie_id=?",new String[]{mMovieId});
+
+                    mMenu.findItem(R.id.menu_action_favorite)
+                                .setIcon(R.mipmap.ic_action_not_important);
+                } else {
+                    values.put("favorite", 1);
+                    getActivity().getContentResolver()
+                            .update(MovieContentProvider.Movie.CONTENT_URI,
+                                    values,"movie_id=?",new String[]{mMovieId});
+
+                    mMenu.findItem(R.id.menu_action_favorite)
+                                .setIcon(R.mipmap.ic_action_important);
+                }
                 break;
         }
 
@@ -346,14 +380,15 @@ public class MovieDetailFragment extends Fragment implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        Uri mUri = MovieContentProvider.Movie.withMovieId(bundle.getString("movie_id"));
+        Uri mUri = MovieContentProvider.Movie.withMovieId(mMovieId);
 
-        return new CursorLoader(getActivity(),mUri,null,"movie_id="+bundle.getString("movie_id"),
+        return new CursorLoader(getActivity(),mUri,null,null,
                 null,null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
             if (data != null && data.moveToFirst()) {
                 tvSynopsis.setText(data.getString(data.getColumnIndex("overview")));
                 tvTitle.setText(data.getString(data.getColumnIndex("original_title")));
@@ -371,6 +406,11 @@ public class MovieDetailFragment extends Fragment implements
                                 + "?api_key=" + Developer.MOVIES_API_KEY)
                         .into(ivPoster);
 
+                if(data.getInt(data.getColumnIndex("favorite")) == 1){
+                    isFavorite = true;
+                } else {
+                    isFavorite = false;
+                }
             }
     }
 

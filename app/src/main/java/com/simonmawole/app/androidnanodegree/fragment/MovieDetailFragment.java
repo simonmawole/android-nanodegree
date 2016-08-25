@@ -1,5 +1,6 @@
 package com.simonmawole.app.androidnanodegree.fragment;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -115,18 +116,6 @@ public class MovieDetailFragment extends Fragment implements
         bundle = getActivity().getIntent().getExtras();
 
         if(bundle != null) {
-           /* tvSynopsis.setText(bundle.getString("overview"));
-            tvTitle.setText(bundle.getString("title"));
-            tvReleaseDate.setText(Helpers.getDateUserFormat(bundle.getString("release_date")));
-            tvLanguage.setText(bundle.getString("language"));
-
-            DecimalFormat df = new DecimalFormat("#.#");
-            df.setRoundingMode(RoundingMode.CEILING);
-            tvRating.setText(df.format(bundle.getDouble("rating")) + " / 10");
-
-            Glide.with(getActivity())
-                    .load(urlImage + bundle.getString("poster") + "?api_key=" + Developer.MOVIES_API_KEY)
-                    .into(ivPoster);*/
 
             setTrailer(bundle.getString("movie_id"));
             setReview(bundle.getString("movie_id"));

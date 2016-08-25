@@ -38,8 +38,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MySyncAdapter extends AbstractThreadedSyncAdapter {
     // Interval at which to sync with the weather, in milliseconds.
-    // 60 seconds (1 minute) * 180 = 3 hours
-    public static final int SYNC_INTERVAL = 60;
+    // 60 seconds (1 minute) * 60 * 4 = 4 hours
+    public static final int SYNC_INTERVAL = 60 * 60 * 4;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
     private static final int NOTIFICATION_ID = 1992;
 
@@ -52,13 +52,10 @@ public class MySyncAdapter extends AbstractThreadedSyncAdapter {
 
     public MySyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-
-        Log.e("MY LOGS","syncadapter");
     }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d("SYNC ADAPTER", "Starting sync");
 
         //fetch popular movies
         fetchMovies("popular");
@@ -186,7 +183,6 @@ public class MySyncAdapter extends AbstractThreadedSyncAdapter {
      * Helper method to schedule the sync adapter periodic execution
      */
     public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
-        Log.e("MY LOGS","configurePeriodicSync");
         Account account = getSyncAccount(context);
         String authority = context.getString(R.string.content_authority);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -223,7 +219,6 @@ public class MySyncAdapter extends AbstractThreadedSyncAdapter {
      * @return a fake account.
      */
     public static Account getSyncAccount(Context context) {
-        Log.e("MY LOGS","getsyncaccount");
         // Get an instance of the Android account manager
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
@@ -257,7 +252,6 @@ public class MySyncAdapter extends AbstractThreadedSyncAdapter {
 
 
     private static void onAccountCreated(Account newAccount, Context context) {
-        Log.e("MY LOGS","onaccountcreated");
         /*
          * Since we've created an account
          */

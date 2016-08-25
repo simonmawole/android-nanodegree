@@ -19,6 +19,9 @@ public class MovieActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         if (findViewById(R.id.movie_detail_container) != null) {
             // The detail container view will be present only in the large-screen layouts
             // (res/layout-sw600dp). If this view is present, then the activity should be
@@ -36,9 +39,6 @@ public class MovieActivity extends AppCompatActivity  {
             mTwoPane = false;
         }
 
-        //Initialize sync adapter
-        MySyncAdapter.initializeSyncAdapter(this);
-
     }
 
     @Override
@@ -46,7 +46,11 @@ public class MovieActivity extends AppCompatActivity  {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 

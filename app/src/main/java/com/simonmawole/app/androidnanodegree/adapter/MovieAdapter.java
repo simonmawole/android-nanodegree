@@ -28,7 +28,6 @@ import butterknife.ButterKnife;
  */
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
-    //private List<MovieModel.MovieResult> mList;
     private Cursor mCursor;
     private Context context;
     private String urlImage = "http://image.tmdb.org/t/p/w500/";
@@ -66,7 +65,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         mCursor.moveToPosition(position);
         holder.movieId = mCursor.getString(mCursor.getColumnIndex("movie_id"));
 
-        Helpers.printLog("MOVIE_ID",holder.movieId);
         Glide.with(context)
                 .load(urlImage
                         +mCursor.getString(mCursor.getColumnIndex("poster_path"))
@@ -76,22 +74,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         holder.ivMoviePoster.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                Helpers.printLog("MOVIE_ID_ON",holder.movieId);
 
                 Bundle bundle = new Bundle();
                 bundle.putString("movie_id", holder.movieId);
-                bundle.putString("title",
-                        mCursor.getString(mCursor.getColumnIndex("original_title")));
-                bundle.putString("poster",
-                        mCursor.getString(mCursor.getColumnIndex("poster_path")));
-                bundle.putString("overview",
-                        mCursor.getString(mCursor.getColumnIndex("overview")));
-                bundle.putDouble("rating",
-                        mCursor.getDouble(mCursor.getColumnIndex("vote_average")));
-                bundle.putString("language",
-                        mCursor.getString(mCursor.getColumnIndex("original_language")));
-                bundle.putString("release_date",
-                        mCursor.getString(mCursor.getColumnIndex("release_date")));
                 context.startActivity(
                         new Intent(context, MovieDetailActivity.class).putExtras(bundle));
             }

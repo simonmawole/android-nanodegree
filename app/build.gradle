@@ -3,13 +3,13 @@ apply plugin: 'android-apt'
 apply plugin: 'com.neenbedankt.android-apt'
 
 android {
-    compileSdkVersion 'Google Inc.:Google APIs:23'
-    buildToolsVersion '23.0.3'
+    compileSdkVersion 24
+    buildToolsVersion '24.0.1'
 
     defaultConfig {
         applicationId "com.simonmawole.app.androidnanodegree"
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 24
         versionCode 1
         versionName "1.0"
     }
@@ -41,8 +41,8 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     //Butterknife
     //https://github.com/JakeWharton/butterknife
-    compile 'com.jakewharton:butterknife:8.1.0'
-    apt 'com.jakewharton:butterknife-compiler:8.1.0'
+    compile 'com.jakewharton:butterknife:8.3.0'
+    apt 'com.jakewharton:butterknife-compiler:8.3.0'
     //Retrofit
     //https://github.com/square/retrofit
     compile 'com.google.code.gson:gson:2.6.2'
@@ -54,5 +54,4 @@ dependencies {
     //https://github.com/SimonVT/schematic
     apt 'net.simonvt.schematic:schematic-compiler:0.6.7'
     compile 'net.simonvt.schematic:schematic:0.6.7'
-
 }

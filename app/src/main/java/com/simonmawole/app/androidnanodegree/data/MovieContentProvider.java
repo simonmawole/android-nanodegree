@@ -30,7 +30,7 @@ public final class MovieContentProvider {
     }
 
     public static final String AUTHORITY =
-            "com.simonmawole.app.androidnanodegree.MovieContentProvider";
+            "com.simonmawole.app.androidnanodegree";
 
     static final Uri BASE_CONTENT_URI = Uri.parse("content://"+AUTHORITY);
 
@@ -99,7 +99,7 @@ public final class MovieContentProvider {
          * Content Uri for return single movie using id
          * */
         @InexactContentUri(
-                name = "MOVIE",
+                name = "MOVIES",
                 path = Path.MOVIE + "/*",
                 type = "vnd.android.cursor.item/movie",
                 whereColumn = MovieColumns.MOVIE_ID,
@@ -112,11 +112,11 @@ public final class MovieContentProvider {
          * Content Uri for returning popular movies
          * */
         @InexactContentUri(
-                name = "POPULAR_MOVIE",
-                path = Path.MOVIE + "/" + Path.POPULAR,
+                name = "POPULAR_MOVIES",
+                path = Path.POPULAR + "/*",
                 type = "vnd.android.cursor.dir/movie",
                 whereColumn = MovieColumns.POPULAR,
-                pathSegment = 2
+                pathSegment = 1
         ) public static Uri popularMovie(String v){
             return buildUri(Path.POPULAR, String.valueOf(v));
         }
@@ -126,10 +126,10 @@ public final class MovieContentProvider {
          * */
         @InexactContentUri(
                 name = "TOP_RATED_MOVIES",
-                path = Path.MOVIE + "/" + Path.TOP_RATED,
+                path = Path.TOP_RATED + "/*",
                 type = "vnd.android.cursor.dir/movie",
                 whereColumn = MovieColumns.TOP_RATED,
-                pathSegment = 2
+                pathSegment = 1
         ) public static Uri topRatedMovie(String v){
             return buildUri(Path.TOP_RATED, String.valueOf(v));
         }
@@ -139,38 +139,12 @@ public final class MovieContentProvider {
          * */
         @InexactContentUri(
                 name = "FAVORITE_MOVIES",
-                path = Path.MOVIE + "/" + Path.FAVORITE,
+                path = Path.FAVORITE + "/*",
                 type = "vnd.android.cursor.dir/movie",
                 whereColumn = MovieColumns.FAVORITE,
-                pathSegment = 2
+                pathSegment = 1
         ) public static Uri favoriteMovie(String v){
-            return buildUri(Path.MOVIE, Path.FAVORITE, String.valueOf(v));
-        }
-
-        /**
-         * Content Uri for returning movie trailers
-         * */
-        @InexactContentUri(
-                name = "MOVIE_TRAILERS",
-                path = Path.MOVIE + "/" + Path.TRAILER,
-                type = "vnd.android.cursor.dir/movie",
-                whereColumn = MovieTrailerColumns.MOVIE_ID,
-                pathSegment = 2
-        ) public static Uri movieTrailer(String id){
-            return buildUri(Path.MOVIE, Path.TRAILER, String.valueOf(id));
-        }
-
-        /**
-         * Content Uri returning movie reviews
-         * */
-        @InexactContentUri(
-                name = "MOVIE_REVIEWS",
-                path = Path.MOVIE + "/" + Path.REVIEW,
-                type = "vnd.android.cursor.dir/movie",
-                whereColumn = MovieReviewColumns.MOVIE_ID,
-                pathSegment = 2
-        ) public static Uri movieReview(String id){
-            return buildUri(Path.MOVIE, Path.REVIEW, String.valueOf(id));
+            return buildUri(Path.FAVORITE, String.valueOf(v));
         }
 
         /**
@@ -181,8 +155,6 @@ public final class MovieContentProvider {
             final String movieId = values.getAsString(MovieColumns.MOVIE_ID);
             return new Uri[]{
                     Movie.withMovieId(movieId),
-                    movieReview(movieId),
-                    movieTrailer(movieId),
                     favoriteMovie(movieId),
                     topRatedMovie(movieId),
                     popularMovie(movieId)
@@ -217,8 +189,6 @@ public final class MovieContentProvider {
 
             return new Uri[]{
                     withMovieId(movieId2),
-                    movieReview(movieId2),
-                    movieTrailer(movieId2),
                     favoriteMovie(movieId2),
                     topRatedMovie(movieId2),
                     popularMovie(movieId2),
@@ -238,8 +208,6 @@ public final class MovieContentProvider {
 
             return new Uri[]{
                     withMovieId(movieId2),
-                    movieReview(movieId2),
-                    movieTrailer(movieId2),
                     favoriteMovie(movieId2),
                     topRatedMovie(movieId2),
                     popularMovie(movieId2),

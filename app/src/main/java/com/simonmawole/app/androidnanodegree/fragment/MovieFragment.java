@@ -46,12 +46,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private MovieAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private List<MovieModel.MovieResult> mList;
-
-    private Gson gson;
-    private Retrofit retrofit;
-    private MovieService movieService;
-    private Call<MovieModel> call;
 
     /*
     * Category selected
@@ -59,7 +53,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     * 1 is top_rated
     * 2 is favorite
     * */
-    private static int categorySelected = -1;
+    private static int categorySelected = 0;
 
     //Binding
     @BindView(R.id.rvMovies) RecyclerView rvMovies;
@@ -75,6 +69,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
+
+        //Initialize sync adapter
+        MySyncAdapter.initializeSyncAdapter(getActivity());
     }
 
     @Override
@@ -87,16 +84,19 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         int itemId = item.getItemId();
         switch (itemId){
             case R.id.menu_most_popular:
-                //fetchMovies("popular");
-                fetchMoviesFromDatabse("popular");
+                categorySelected = 0;
+                getLoaderManager().restartLoader(0, null, this);
                 getActivity().setTitle(R.string.most_popular);
                 break;
             case R.id.menu_top_rated:
-                //fetchMovies("top_rated");
+                categorySelected = 1;
+                getLoaderManager().restartLoader(0, null, this);
                 getActivity().setTitle(R.string.top_rated);
                 break;
             case R.id.menu_favorite:
-                Helpers.showToast(getActivity(), "Favorite");
+                categorySelected = 2;
+                getLoaderManager().restartLoader(0, null, this);
+                getActivity().setTitle(R.string.favorite);
                 break;
         }
 
@@ -115,95 +115,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         layoutManager.setAutoMeasureEnabled(true);
         rvMovies.setLayoutManager(layoutManager);
 
-        //adapter = new MovieAdapter(getActivity(), null);
-        //rvMovies.setAdapter(adapter);
-
-        //fetchMoviesFromDatabse("popular");
-
-        MySyncAdapter.syncImmediately(getActivity());
-
         getActivity().setTitle(R.string.most_popular);
 
         return rootView;
-    }
-
-
-    public void fetchMoviesFromDatabse(final String category){
-        if(Helpers.isConnected(getActivity())){
-            //Show the progress bar
-            progressBar.setVisibility(View.VISIBLE);
-            rvMovies.setVisibility(View.GONE);
-            tvMessage.setVisibility(View.GONE);
-
-            gson = new GsonBuilder().create();
-
-            retrofit = new Retrofit.Builder()
-                    .baseUrl("http://api.themoviedb.org")
-                    .addConverterFactory(GsonConverterFactory.create(gson))
-                    .build();
-
-            movieService = retrofit.create(MovieService.class);
-
-            call = movieService.getMovies(category, Developer.MOVIES_API_KEY);
-
-            call.enqueue(new retrofit2.Callback<MovieModel>() {
-                @Override
-                public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
-                    try {
-                        mList = response.body().results;
-
-                        //adapter = new MovieAdapter(getActivity(), mList);
-                        //rvMovies.swapAdapter(adapter, false);
-
-                        //Show recycler
-                        progressBar.setVisibility(View.GONE);
-                        rvMovies.setVisibility(View.VISIBLE);
-                        tvMessage.setVisibility(View.GONE);
-
-                        //Add to database
-                        for(int i = 0; i < mList.size(); i++){
-                            MovieModel.MovieResult model = mList.get(i);
-
-                            ContentValues values = new ContentValues();
-                            values.put("movie_id", model.id);
-                            values.put("overview", model.overview);
-                            values.put("original_language", model.original_language);
-                            values.put("original_title", model.original_title);
-                            values.put("poster_path", model.poster_path);
-                            values.put("release_date", model.release_date);
-                            values.put("vote_average", model.vote_average);
-                            if(category.equalsIgnoreCase("popular")){
-                                values.put("popular", 1);
-                            } else {
-                                values.put("top_rated", 1);
-                            }
-                            getActivity().getContentResolver().insert(
-                                    MovieContentProvider.Movie.CONTENT_URI, values);
-                        }
-
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<MovieModel> call, Throwable t) {
-                    progressBar.setVisibility(View.GONE);
-                    rvMovies.setVisibility(View.GONE);
-
-                    tvMessage.setVisibility(View.VISIBLE);
-                    tvMessage.setText("Fail to load movie! Please retry.");
-                    t.printStackTrace();
-                }
-            });
-        } else {
-            progressBar.setVisibility(View.GONE);
-            rvMovies.setVisibility(View.GONE);
-
-            tvMessage.setVisibility(View.VISIBLE);
-            tvMessage.setText("No internet Connection!");
-        }
-
     }
 
     @Override
@@ -224,35 +138,52 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         rvMovies.setVisibility(View.GONE);
         tvMessage.setVisibility(View.GONE);
 
-        Uri uriMovies;
+        Uri uriMovies = null;
         switch(categorySelected){
             case 0:
-                //uriMovies = MovieContentProvider.Movie.popularMovie(1);
+                try {
+                    uriMovies = MovieContentProvider.Movie.popularMovie("1");
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
                 break;
             case 1:
-                //uriMovies = MovieContentProvider.Movie.topRatedMovie(1);
+                try {
+                    uriMovies = MovieContentProvider.Movie.topRatedMovie("1");
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
                 break;
             case 2:
-                //uriMovies = MovieContentProvider.Movie.favoriteMovie(1);
+                try {
+                    uriMovies = MovieContentProvider.Movie.favoriteMovie("1");
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
                 break;
-            default:
-                //uriMovies = MovieContentProvider.Movie.CONTENT_URI;
         }
 
         return new CursorLoader(getActivity(),
-                MovieContentProvider.Movie.CONTENT_URI,
+                uriMovies,
                 null, null, null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Helpers.printLog("CURSOR", String.valueOf(data.getCount()));
-        adapter = new MovieAdapter(getActivity(), data);
-        rvMovies.swapAdapter(adapter, false);
+        if(data != null && data.getCount() != 0) {
+            adapter = new MovieAdapter(getActivity(), data);
+            rvMovies.swapAdapter(adapter, false);
 
-        progressBar.setVisibility(View.GONE);
-        rvMovies.setVisibility(View.VISIBLE);
-        tvMessage.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+            rvMovies.setVisibility(View.VISIBLE);
+            tvMessage.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            rvMovies.setVisibility(View.GONE);
+
+            tvMessage.setText("There is no movie");
+            tvMessage.setVisibility(View.VISIBLE);
+        }
 
     }
 

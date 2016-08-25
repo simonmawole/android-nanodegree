@@ -40,7 +40,7 @@
 
         <!--Content Provider-->
         <provider
-            android:authorities="com.simonmawole.app.androidnanodegree.MovieContentProvider"
+            android:authorities="com.simonmawole.app.androidnanodegree"
             android:name="com.simonmawole.app.androidnanodegree.MovieContentProvider"
             android:exported="false"
             android:syncable="true"/>

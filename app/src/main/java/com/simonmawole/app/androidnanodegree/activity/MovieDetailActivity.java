@@ -21,6 +21,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         if(savedInstanceState == null){
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.detailFrame, new MovieDetailFragment()).commit();

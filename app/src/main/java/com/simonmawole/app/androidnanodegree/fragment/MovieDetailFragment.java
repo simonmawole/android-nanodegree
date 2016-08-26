@@ -117,7 +117,7 @@ public class MovieDetailFragment extends Fragment implements
 
         ButterKnife.bind(this, rootView);
 
-        bundle = getActivity().getIntent().getExtras();
+        bundle = getArguments();
 
         if(bundle != null) {
 

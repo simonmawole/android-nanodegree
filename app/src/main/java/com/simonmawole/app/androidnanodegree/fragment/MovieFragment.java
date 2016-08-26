@@ -42,7 +42,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * Created by simon on 5/16/16.
  */
-public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        MovieAdapter.MovieAdapterListener{
 
     private MovieAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -57,9 +58,21 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     //Binding
     @BindView(R.id.rvMovies) RecyclerView rvMovies;
- //   @BindView(R.id.srlMovies) SwipeRefreshLayout srlMovies;
-    @BindView(R.id.pbLoadingProgress) ProgressBar progressBar;
-    @BindView(R.id.tvMessage) TextView tvMessage;
+    //   @BindView(R.id.srlMovies) SwipeRefreshLayout srlMovies;
+    //@BindView(R.id.pbLoadingProgress) ProgressBar progressBar;
+    //@BindView(R.id.tvMessage) TextView tvMessage;
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        void onItemSelected(String id);
+    }
 
     public MovieFragment() {
     }
@@ -134,9 +147,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        progressBar.setVisibility(View.VISIBLE);
+        //progressBar.setVisibility(View.VISIBLE);
         rvMovies.setVisibility(View.GONE);
-        tvMessage.setVisibility(View.GONE);
+       // tvMessage.setVisibility(View.GONE);
 
         return new CursorLoader(getActivity(),
                 getUrlFromCategorySelected(),
@@ -164,20 +177,20 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
         if(data != null && data.getCount() != 0) {
-            adapter = new MovieAdapter(getActivity(), data);
+            adapter = new MovieAdapter(getActivity(), data, MovieFragment.this);
             rvMovies.swapAdapter(adapter, false);
 
-            progressBar.setVisibility(View.GONE);
+          //  progressBar.setVisibility(View.GONE);
             rvMovies.setVisibility(View.VISIBLE);
-            tvMessage.setVisibility(View.GONE);
+           // tvMessage.setVisibility(View.GONE);
         } else {
             MySyncAdapter.syncImmediately(getActivity());
 
-            progressBar.setVisibility(View.GONE);
+           // progressBar.setVisibility(View.GONE);
             rvMovies.setVisibility(View.GONE);
 
-            tvMessage.setText("There is no movie");
-            tvMessage.setVisibility(View.VISIBLE);
+            //tvMessage.setText("There is no movie");
+            //tvMessage.setVisibility(View.VISIBLE);
         }
 
 
@@ -185,8 +198,14 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        adapter = new MovieAdapter(getActivity(), null);
+        adapter = new MovieAdapter(getActivity(), null, MovieFragment.this);
         rvMovies.swapAdapter(adapter, false);
+    }
+
+    @Override
+    public void onAdapterItemSelected(String id) {
+        ((Callback)getActivity())
+                .onItemSelected(id);
     }
 }
 

@@ -31,10 +31,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     private Cursor mCursor;
     private Context context;
     private String urlImage = "http://image.tmdb.org/t/p/w500/";
+    private MovieAdapterListener mListener;
 
-    public MovieAdapter(Context c, Cursor cursor){
+    public MovieAdapter(Context c, Cursor cursor, MovieAdapterListener listener){
         this.context = c;
         this.mCursor = cursor;
+        this.mListener = listener;
+    }
+
+    public interface MovieAdapterListener{
+        void onAdapterItemSelected(String id);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -62,6 +68,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+
         mCursor.moveToPosition(position);
         holder.movieId = mCursor.getString(mCursor.getColumnIndex("movie_id"));
 
@@ -74,11 +81,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         holder.ivMoviePoster.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                mListener.onAdapterItemSelected(holder.movieId);
 
-                Bundle bundle = new Bundle();
+                /*Bundle bundle = new Bundle();
                 bundle.putString("movie_id", holder.movieId);
                 context.startActivity(
-                        new Intent(context, MovieDetailActivity.class).putExtras(bundle));
+                        new Intent(context, MovieDetailActivity.class).putExtras(bundle));*/
             }
         });
 

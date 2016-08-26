@@ -24,8 +24,20 @@ public class MovieDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(savedInstanceState == null){
+            // Create the detail fragment and add it to the activity
+            // using a fragment transaction.
+            String id = getIntent().getStringExtra("movie_id");
+
+            Bundle arguments = new Bundle();
+            arguments.putString("movie_id", id);
+
+            MovieDetailFragment fragment = new MovieDetailFragment();
+            fragment.setArguments(arguments);
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.detailFrame, new MovieDetailFragment()).commit();
+                    .add(R.id.movie_detail_container, fragment)
+                    .commit();
+
         }
     }
 

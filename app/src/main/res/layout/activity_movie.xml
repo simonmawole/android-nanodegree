@@ -5,5 +5,4 @@
     android:name="com.simonmawole.app.androidnanodegree.fragment.MovieFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.MovieFragment"
-    tools:layout="@android:layout/list_content" />
+    tools:context="com.simonmawole.app.androidnanodegree.fragment.MovieFragment" />

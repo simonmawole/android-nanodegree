@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,25 +7,24 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rvMovies"
                 android:layout_width="match_parent"
-                android:visibility="gone"
                 android:background="@color/grey_200"
                 android:layout_height="match_parent"/>
 
-        <!--Start: Show progress when fetching data-->
+        <!--&lt;!&ndash;Start: Show progress when fetching data&ndash;&gt;
             <ProgressBar
                 android:id="@+id/pbLoadingProgress"
                 android:layout_width="wrap_content"
                 android:visibility="gone"
                 android:layout_centerInParent="true"
                 android:layout_height="wrap_content" />
-        <!--End:-->
+        &lt;!&ndash;End:&ndash;&gt;
 
-        <!--Start: Show message when there is error in fetching data-->
+        &lt;!&ndash;Start: Show message when there is error in fetching data&ndash;&gt;
             <TextView
                 android:id="@+id/tvMessage"
                 android:layout_width="wrap_content"
                 android:layout_centerInParent="true"
                 android:visibility="gone"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content" />-->
 
-</RelativeLayout>
+</FrameLayout>

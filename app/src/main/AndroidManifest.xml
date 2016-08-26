@@ -20,7 +20,6 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".activity.MainActivity"
-            android:screenOrientation="portrait"
             android:label="@string/activity_main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -29,12 +28,10 @@
         </activity>
 
         <activity android:name=".activity.MovieActivity"
-            android:screenOrientation="portrait"
             android:label="@string/activity_popular_movies">
         </activity>
 
         <activity android:name=".activity.MovieDetailActivity"
-            android:screenOrientation="portrait"
             android:label="Detail">
         </activity>
 

@@ -1,6 +1,5 @@
 package com.simonmawole.app.androidnanodegree.fragment;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,25 +18,13 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.simonmawole.app.androidnanodegree.R;
 import com.simonmawole.app.androidnanodegree.adapter.MovieAdapter;
 import com.simonmawole.app.androidnanodegree.data.MovieContentProvider;
-import com.simonmawole.app.androidnanodegree.developer.Developer;
-import com.simonmawole.app.androidnanodegree.end_point.MovieService;
-import com.simonmawole.app.androidnanodegree.model.MovieModel;
 import com.simonmawole.app.androidnanodegree.sync.MySyncAdapter;
-import com.simonmawole.app.androidnanodegree.utility.Helpers;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by simon on 5/16/16.
@@ -54,23 +41,16 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     * 1 is top_rated
     * 2 is favorite
     * */
-    private static int categorySelected = 0;
+    private int categorySelected = 0;
+    private int mPosition = -1;
 
     //Binding
     @BindView(R.id.rvMovies) RecyclerView rvMovies;
     //   @BindView(R.id.srlMovies) SwipeRefreshLayout srlMovies;
-    //@BindView(R.id.pbLoadingProgress) ProgressBar progressBar;
-    //@BindView(R.id.tvMessage) TextView tvMessage;
+    @BindView(R.id.pbLoadingProgress) ProgressBar progressBar;
+    @BindView(R.id.tvMessage) TextView tvMessage;
 
-    /**
-     * A callback interface that all activities containing this fragment must
-     * implement. This mechanism allows activities to be notified of item
-     * selections.
-     */
     public interface Callback {
-        /**
-         * DetailFragmentCallback for when an item has been selected.
-         */
         void onItemSelected(String id);
     }
 
@@ -80,7 +60,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
 
         //Initialize sync adapter
@@ -128,7 +107,24 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         layoutManager.setAutoMeasureEnabled(true);
         rvMovies.setLayoutManager(layoutManager);
 
-        getActivity().setTitle(R.string.most_popular);
+        if (savedInstanceState != null && savedInstanceState.containsKey("list_position") &&
+                 savedInstanceState.containsKey("category_selected")) {
+            mPosition = savedInstanceState.getInt("list_position");
+            categorySelected = savedInstanceState.getInt("category_selected");
+            switch(categorySelected){
+                case 0:
+                    getActivity().setTitle(R.string.most_popular);
+                    break;
+                case 1:
+                    getActivity().setTitle(R.string.top_rated);
+                    break;
+                case 2:
+                    getActivity().setTitle(R.string.favorite);
+                    break;
+            }
+        } else {
+            getActivity().setTitle(R.string.most_popular);
+        }
 
         return rootView;
     }
@@ -146,10 +142,20 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (mPosition != -1) {
+            outState.putInt("list_position", mPosition);
+        }
+
+        outState.putInt("category_selected", categorySelected);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        //progressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
         rvMovies.setVisibility(View.GONE);
-       // tvMessage.setVisibility(View.GONE);
+        tvMessage.setVisibility(View.GONE);
 
         return new CursorLoader(getActivity(),
                 getUrlFromCategorySelected(),
@@ -180,17 +186,21 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             adapter = new MovieAdapter(getActivity(), data, MovieFragment.this);
             rvMovies.swapAdapter(adapter, false);
 
-          //  progressBar.setVisibility(View.GONE);
+            if(mPosition != -1) {
+                rvMovies.smoothScrollToPosition(mPosition);
+            }
+
+            progressBar.setVisibility(View.GONE);
             rvMovies.setVisibility(View.VISIBLE);
-           // tvMessage.setVisibility(View.GONE);
+            tvMessage.setVisibility(View.GONE);
         } else {
             MySyncAdapter.syncImmediately(getActivity());
 
-           // progressBar.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
             rvMovies.setVisibility(View.GONE);
 
-            //tvMessage.setText("There is no movie");
-            //tvMessage.setVisibility(View.VISIBLE);
+            tvMessage.setText("There is no movie");
+            tvMessage.setVisibility(View.VISIBLE);
         }
 
 
@@ -203,9 +213,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     @Override
-    public void onAdapterItemSelected(String id) {
+    public void onAdapterItemSelected(String id, int pos) {
         ((Callback)getActivity())
                 .onItemSelected(id);
+        mPosition = pos;
     }
 }
 

@@ -1,6 +1,5 @@
 package com.simonmawole.app.androidnanodegree.fragment;
 
-import android.app.ActionBar;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -22,7 +21,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,29 +30,22 @@ import com.google.android.youtube.player.YouTubeStandalonePlayer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.simonmawole.app.androidnanodegree.R;
-import com.simonmawole.app.androidnanodegree.adapter.MovieAdapter;
 import com.simonmawole.app.androidnanodegree.adapter.MovieReviewAdapter;
 import com.simonmawole.app.androidnanodegree.adapter.MovieTrailerAdapter;
 import com.simonmawole.app.androidnanodegree.data.MovieContentProvider;
 import com.simonmawole.app.androidnanodegree.developer.Developer;
 import com.simonmawole.app.androidnanodegree.end_point.MovieReviewService;
-import com.simonmawole.app.androidnanodegree.end_point.MovieService;
 import com.simonmawole.app.androidnanodegree.end_point.MovieTrailerService;
-import com.simonmawole.app.androidnanodegree.model.MovieModel;
 import com.simonmawole.app.androidnanodegree.model.MovieReviewModel;
 import com.simonmawole.app.androidnanodegree.model.MovieTrailerModel;
-import com.simonmawole.app.androidnanodegree.utility.Helpers;
-import com.simonmawole.app.androidnanodegree.utility.NetworkInterceptor;
+import com.simonmawole.app.androidnanodegree.utility.Utility;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -266,7 +257,7 @@ public class MovieDetailFragment extends Fragment implements
             if (errorReason.isUserRecoverableError()) {
                 errorReason.getErrorDialog(getActivity(), 0).show();
             } else {
-                Helpers.showToast(getActivity(), getString(R.string.error_player));
+                Utility.showToast(getActivity(), getString(R.string.error_player));
             }
         }
     }
@@ -278,7 +269,7 @@ public class MovieDetailFragment extends Fragment implements
     }
 
     public void fetchMovieTrailers(String movieId){
-        if(Helpers.isConnected(getActivity())){
+        if(Utility.isConnected(getActivity())){
             gson = new GsonBuilder().create();
 
             retrofit = new Retrofit.Builder()
@@ -326,7 +317,7 @@ public class MovieDetailFragment extends Fragment implements
     }
 
     public void fetchMovieReview(String movieId){
-        if(Helpers.isConnected(getActivity())){
+        if(Utility.isConnected(getActivity())){
             gson = new GsonBuilder().create();
 
             retrofit = new Retrofit.Builder()
@@ -373,7 +364,7 @@ public class MovieDetailFragment extends Fragment implements
                 && videoId.length() != 0) {
             startYoutubePlayer(videoId);
         } else {
-            Helpers.showToast(getActivity(), "No trailer");
+            Utility.showToast(getActivity(), "No trailer");
         }
     }
 
@@ -392,7 +383,7 @@ public class MovieDetailFragment extends Fragment implements
             if (data != null && data.moveToFirst()) {
                 tvSynopsis.setText(data.getString(data.getColumnIndex("overview")));
                 tvTitle.setText(data.getString(data.getColumnIndex("original_title")));
-                tvReleaseDate.setText(Helpers.getDateUserFormat(data.getString(
+                tvReleaseDate.setText(Utility.getDateUserFormat(data.getString(
                         data.getColumnIndex("release_date"))));
                 tvLanguage.setText(data.getString(data.getColumnIndex("original_language")));
 

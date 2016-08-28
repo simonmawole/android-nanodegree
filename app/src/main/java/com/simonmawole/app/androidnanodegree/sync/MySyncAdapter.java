@@ -27,7 +27,7 @@ import com.simonmawole.app.androidnanodegree.data.MovieContentProvider;
 import com.simonmawole.app.androidnanodegree.developer.Developer;
 import com.simonmawole.app.androidnanodegree.end_point.MovieService;
 import com.simonmawole.app.androidnanodegree.model.MovieModel;
-import com.simonmawole.app.androidnanodegree.utility.Helpers;
+import com.simonmawole.app.androidnanodegree.utility.Utility;
 
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class MySyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     public void fetchMovies(final String category){
-        if(Helpers.isConnected(getContext())){
+        if(Utility.isConnected(getContext())){
             gson = new GsonBuilder().create();
 
             retrofit = new Retrofit.Builder()
@@ -105,7 +105,7 @@ public class MySyncAdapter extends AbstractThreadedSyncAdapter {
                                     MovieContentProvider.Movie.CONTENT_URI, values);
                         }
 
-                        Helpers.printLog("Fetch "+category+" Movie Complete",
+                        Utility.printLog("Fetch "+category+" Movie Complete",
                                 mList.size() + "Inserted");
 
                         if(fetchTopRated) {
@@ -124,7 +124,7 @@ public class MySyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             });
         } else {
-            Helpers.printLog("SYNC-ADAPTER","no internet connection");
+            Utility.printLog("SYNC-ADAPTER","no internet connection");
         }
 
     }

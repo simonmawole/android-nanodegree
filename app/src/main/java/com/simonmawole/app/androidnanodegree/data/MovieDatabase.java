@@ -22,12 +22,6 @@ public final class MovieDatabase {
     @Table(MovieColumns.class)
     public static final String MOVIE = "movie";
 
-    @Table(MovieReviewColumns.class)
-    public static final String REVIEW = "review";
-
-    @Table(MovieTrailerColumns.class)
-    public static final String TRAILER = "trailer";
-
     @OnCreate
     public static void onCreate(Context context, SQLiteDatabase db){
     }

@@ -39,8 +39,6 @@ public final class MovieContentProvider {
         String POPULAR = "popular";
         String TOP_RATED = "top_rated";
         String FAVORITE = "favorite";
-        String REVIEW = "review";
-        String TRAILER = "trailer";
     }
 
     private static Uri buildUri(String... paths){
@@ -49,40 +47,6 @@ public final class MovieContentProvider {
             builder.appendPath(path);
         }
         return builder.build();
-    }
-
-    @TableEndpoint(table = MovieDatabase.REVIEW) public static class Review {
-
-        @MapColumns
-        public static Map<String, String> mapColumns(){
-            Map<String, String> map = new HashMap<>();
-            map.put(MovieReviewColumns.AUTHOR, LIST_REVIEW);
-            return map;
-        }
-
-        @ContentUri(
-                path = Path.REVIEW,
-                type = "vnd.android.cursor.dir/list",
-                defaultSort = MovieReviewColumns._ID + " ASC"
-        ) public static final Uri CONTENT_URI = buildUri(Path.REVIEW);
-
-        @InexactContentUri(
-                path = Path.REVIEW + "/#",
-                name = "REVIEW_ID",
-                type = "vnd.android.cursor.item/list",
-                whereColumn = MovieReviewColumns.REVIEW_ID,
-                pathSegment = 1
-        ) public static Uri withId(long id){
-            return buildUri(Path.REVIEW, String.valueOf(id));
-        }
-
-        static final String LIST_REVIEW = "(SELECT COUNT(*) FROM "
-                + MovieDatabase.REVIEW
-                + " WHERE "
-                + MovieDatabase.REVIEW + "." + MovieReviewColumns.MOVIE_ID
-                + "="
-                + MovieDatabase.MOVIE + "." + MovieColumns.MOVIE_ID + ")";
-
     }
 
     @TableEndpoint(table = MovieDatabase.MOVIE) public static class Movie{

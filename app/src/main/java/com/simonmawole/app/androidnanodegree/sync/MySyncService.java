@@ -3,9 +3,6 @@ package com.simonmawole.app.androidnanodegree.sync;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
-
-import com.simonmawole.app.androidnanodegree.utility.Helpers;
 
 public class MySyncService extends Service {
 

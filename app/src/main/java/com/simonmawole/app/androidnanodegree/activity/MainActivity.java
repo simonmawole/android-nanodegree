@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 
 import com.simonmawole.app.androidnanodegree.R;
-import com.simonmawole.app.androidnanodegree.utility.Helpers;
+import com.simonmawole.app.androidnanodegree.utility.Utility;
 
 import butterknife.BindString;
 import butterknife.ButterKnife;
@@ -43,19 +43,19 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, MovieActivity.class));
                 break;
             case R.id.buttonBuildItBigger:
-                Helpers.showToast(this, builtItBigger);
+                Utility.showToast(this, builtItBigger);
                 break;
             case R.id.buttonLibrary:
-                Helpers.showToast(this,libraryApp);
+                Utility.showToast(this,libraryApp);
                 break;
             case R.id.buttonScores:
-                Helpers.showToast(this,scoreApp);
+                Utility.showToast(this,scoreApp);
                 break;
             case R.id.buttonSpotifyStreamer:
-                Helpers.showToast(this,spotifyStreamer);
+                Utility.showToast(this,spotifyStreamer);
                 break;
             case R.id.buttonXYZReader:
-                Helpers.showToast(this,xyzReader);
+                Utility.showToast(this,xyzReader);
                 break;
         }
     }

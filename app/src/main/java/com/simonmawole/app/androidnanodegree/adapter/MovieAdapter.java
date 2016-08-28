@@ -1,9 +1,7 @@
 package com.simonmawole.app.androidnanodegree.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,16 +10,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.simonmawole.app.androidnanodegree.R;
-import com.simonmawole.app.androidnanodegree.activity.MovieDetailActivity;
-import com.simonmawole.app.androidnanodegree.model.MovieModel;
 import com.simonmawole.app.androidnanodegree.developer.Developer;
-import com.simonmawole.app.androidnanodegree.utility.Helpers;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by simon on 3/13/16.
@@ -40,7 +29,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     }
 
     public interface MovieAdapterListener{
-        void onAdapterItemSelected(String id);
+        void onAdapterItemSelected(String id, int pos);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -67,7 +56,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         mCursor.moveToPosition(position);
         holder.movieId = mCursor.getString(mCursor.getColumnIndex("movie_id"));
@@ -81,12 +70,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         holder.ivMoviePoster.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                mListener.onAdapterItemSelected(holder.movieId);
-
-                /*Bundle bundle = new Bundle();
-                bundle.putString("movie_id", holder.movieId);
-                context.startActivity(
-                        new Intent(context, MovieDetailActivity.class).putExtras(bundle));*/
+                mListener.onAdapterItemSelected(holder.movieId, position);
             }
         });
 

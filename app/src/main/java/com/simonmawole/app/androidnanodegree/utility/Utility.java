@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
  * Created by simon on 26-Jun-16.
  */
 
-public class Helpers {
+public class Utility {
 
     public static Toast mToast = null;
     public static String LOG_TAG = null;
